@@ -1,0 +1,6 @@
+.env
+.local/
+storage/private/*
+!storage/private/.gitkeep
+proposal-reference.pdf
+

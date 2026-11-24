@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN faculty_id VARCHAR(48) NULL UNIQUE AFTER full_name;
