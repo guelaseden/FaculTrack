@@ -555,11 +555,13 @@ html.portal-page, html.portal-page body {width:100%;min-height:100%;overflow-x:h
 .subject-edit-grid [name="code"] {grid-column:auto}
 .subject-edit-grid label:has([name="code"]) {grid-column:span 3}
 .subject-edit-grid label:has([name="title"]) {grid-column:span 6}
+.subject-edit-grid label:has([name="units"]) {grid-column:span 3}
 .subject-edit-grid label:has([name="section"]) {grid-column:span 3}
 .subject-edit-grid label:has([name="term_id"]) {grid-column:span 4}
-.subject-edit-grid label:has([name="department_id"]) {grid-column:span 4}
-.subject-edit-grid label:has([name="faculty_user_id"]) {grid-column:span 4}
+.subject-edit-grid label:has([name="department_id"]) {grid-column:span 2}
+.subject-edit-grid label:has([name="faculty_user_id"]) {grid-column:span 5}
 .subject-edit-grid input,.subject-edit-grid select {width:100%;margin:0}
+.subject-edit-grid label:has([name="department_id"]) ~ label:has([name="faculty_user_id"]) {grid-column:span 3}
 @media(max-width:640px){
   [data-directory="users"] .directory-search {width:100%}
   [data-directory="users"] .form-label:has(select[name="department"]) {flex:1 1 100%;flex-wrap:nowrap}
@@ -732,6 +734,8 @@ html.portal-page, html.portal-page body {width:100%;min-height:100%;overflow-x:h
 }
 
 .department-suite [data-directory="department-subjects"] .btn {display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+[data-directory="department-subjects"] {width:100%;justify-content:flex-end}
+[data-directory="department-subjects"] .directory-search {flex:1 1 16rem;max-width:24rem;margin-right:auto}
 [data-directory="department-subjects"] select.form-select {width:max-content;min-width:9rem}
 .department-suite .subject-directory td {padding-block:8px}
 .subject-directory .department-action {background:transparent;border:0}
