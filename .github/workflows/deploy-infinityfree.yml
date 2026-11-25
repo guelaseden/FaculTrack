@@ -31,6 +31,9 @@ jobs:
 
       - name: Check application syntax
         run: |
+          # InfinityFree serves the contents of public/ directly from htdocs/.
+          sed -i "s@__DIR__.'/../app/core.php'@__DIR__.'/app/core.php'@" public/index.php
+          sed -i "s@ROOT.'/public/assets/@ROOT.'/assets/@g" views/layout.php
           find app views public -name '*.php' -print0 | xargs -0 -n1 php -l
           node --check public/assets/js/app.js
 
@@ -46,7 +49,7 @@ jobs:
           : "${FTP_HOST:?Set the FTP_HOST repository secret}"
           : "${FTP_USERNAME:?Set the FTP_USERNAME repository secret}"
           : "${FTP_PASSWORD:?Set the FTP_PASSWORD repository secret}"
-          : "${FTP_APP_DIR:?Set FTP_APP_DIR to the live folder containing app, views and public}"
+          FTP_APP_DIR="${FTP_APP_DIR:-/htdocs}"
           [[ "$FTP_HOST" =~ ^[a-zA-Z0-9.-]+$ ]] || { echo 'Use the FTP hostname without a URL or port.'; exit 1; }
           root="${FTP_APP_DIR%/}"
           [[ "$root" =~ ^/[a-zA-Z0-9._/-]+$ && "/$root/" != *"/../"* ]] || { echo 'Check the FTP_APP_DIR path.'; exit 1; }
@@ -54,20 +57,22 @@ jobs:
           ftp=(curl --silent --show-error --fail --ssl-reqd --connect-timeout 15 --max-time 120 --user "$FTP_USERNAME:$FTP_PASSWORD")
 
           # A different hosting layout needs a different deployment mapping.
-          for file in app/core.php views/management.php public/index.php; do
+          for file in app/core.php views/management.php index.php assets/css/app.css .env; do
             "${ftp[@]}" --head --output /dev/null "$base/$file" || { echo "Could not verify $file in FTP_APP_DIR. No files uploaded."; exit 1; }
           done
 
           # Publish each finished file by rename. Keep hosting rules, uploads,
           # database contents and environment settings under the site's control.
           upload() {
-            local file="$1" dir name staged
-            dir="${file%/*}"
-            name="${file##*/}"
+            local file="$1" remote dir name staged
+            remote="${file#public/}"
+            dir="$base"
+            if [[ "$remote" == */* ]]; then dir="$base/${remote%/*}"; fi
+            name="${remote##*/}"
             staged=".ft-deploy-$name"
             "${ftp[@]}" --ftp-create-dirs --upload-file "$file" \
-              --quote "-RNFR $staged" --quote "-RNTO $name" "$base/$dir/$staged"
-            echo "Published $file"
+              --quote "-RNFR $staged" --quote "-RNTO $name" "$dir/$staged"
+            echo "Published $remote"
           }
           while IFS= read -r -d '' file; do
             upload "$file"
