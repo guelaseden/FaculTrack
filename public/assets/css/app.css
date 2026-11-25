@@ -318,14 +318,13 @@ html.portal-page, html.portal-page body {width:100%;min-height:100%;overflow-x:h
   .login-pane {position:relative;inset-inline-end:6.9vw;width:min(calc(100% - 32px),clamp(27rem,34.45vw,44rem))}
 }
 @media(max-width:840px) {
-  .login-shell {grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;align-content:stretch}
-  .login-art {padding:18px 6vw 0}
+  .login-shell {grid-template-columns:minmax(0,1fr);grid-template-rows:1fr auto 1fr;row-gap:20px;padding:20px 0}
+  .login-art {align-self:end;padding:0 6vw;text-align:center}
   .login-art::before {width:100%}
-  .login-art>.brand {position:static;margin-bottom:14px}
-  .login-art .eyebrow,.portal-features {display:none}
-  .login-art h1 {font-size:clamp(27px,5vw,40px)}
-  .portal-description {max-width:min(360px,85%);margin:10px 0 0}
-  .login-pane {align-self:center;margin:16px auto}
+  .login-art>.brand,.login-art .eyebrow,.portal-description,.portal-features {display:none}
+  .login-art h1 {margin:0;font-size:clamp(27px,5vw,40px);text-wrap:balance}
+  .login-art h1 span {display:inline}
+  .login-pane {margin:0}
 }
 .login-pane {container-type:inline-size}
 .login-form {
