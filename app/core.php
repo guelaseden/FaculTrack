@@ -76,7 +76,28 @@ function passwordHash(): string {
 }
 function settings(): array {return one('SELECT * FROM system_settings WHERE id=1');}
 function storage(): string {return config('STORAGE',ROOT.'/storage/private');}
-function redirect(string $page,array $params=[]): never {header('Location: ?'.http_build_query(['p'=>$page]+$params),true,303);exit;}
+function appBasePath(): string {
+    $dir=dirname($_SERVER['SCRIPT_NAME']??'/index.php');
+    return $dir==='.'?'':rtrim(str_replace('\\','/',$dir),'/');
+}
+function rolePrefix(string $role): string {
+    return match($role){'Administrator'=>'admin','Department Head'=>'department-head','Faculty'=>'faculty'};
+}
+function pageSlugs(string $prefix): array {
+    if($prefix==='faculty')return ['my-subjects'=>'subjects'];
+    return ['manage'=>'requirements','review'=>'submissions','types'=>'documents','requirements'=>'my-requirements','submissions'=>'my-submissions'];
+}
+function pageUrl(string $page,array $params=[]): string {
+    unset($params['p']);
+    $path=appBasePath().'/';
+    if($page!=='login' && !empty($_SESSION['role'])){
+        $prefix=rolePrefix($_SESSION['role']);
+        $path.=$prefix.'/'.(pageSlugs($prefix)[$page]??$page);
+    }
+    $query=http_build_query($params);
+    return $path.($query!==''?'?'.$query:'');
+}
+function redirect(string $page,array $params=[]): never {header('Location: '.pageUrl($page,$params),true,303);exit;}
 function h(mixed $value): string {return htmlspecialchars((string)$value,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');}
 function dateLabel(?string $d): string {return $d ? date('M j, Y',strtotime($d)) : '—';}
 function deadlineLabel(?string $d): string {return $d ? date('m-d-Y',strtotime($d)) : '—';}

@@ -29,7 +29,7 @@ function managementView(array $u,string $page,string $title,int $id): void {
     if($headerFilters){
         ob_start();
         $searchLabel=$page==='types'?'document types':$page;
-        echo '<form class="directory-toolbar no-print" data-directory="'.h($page).'" method="get" role="search"><input type="hidden" name="p" value="'.h($page).'">';
+        echo '<form class="directory-toolbar no-print" data-directory="'.h($page).'" method="get" role="search">';
         echo '<div class="directory-search"><input type="search" name="q" class="form-control" aria-label="Search '.h($searchLabel).'" placeholder="Search '.h($searchLabel).'" value="'.h($_GET['q']??'').'"><button type="submit" aria-label="Search '.h($searchLabel).'">'.icon('search').'</button></div>';
         if($page==='types'){
             echo '<a class="btn btn-primary" href="'.url('types',['new'=>1]).'" data-form-modal>'.icon('plus-lg').' Add Document Type</a>';
@@ -138,7 +138,7 @@ function academicTermsView(array $u,int $id): void {
     }
     ob_start();
     $addTerm='<a class="btn btn-primary" href="'.url('academic-terms',['new'=>1]).'" data-form-modal>'.icon('plus-lg').' Add Term</a>';
-    echo '<form class="directory-toolbar no-print" data-directory="academic-terms" method="get" role="search"><input type="hidden" name="p" value="academic-terms"><div class="directory-search"><input type="search" name="q" class="form-control" aria-label="Search academic terms" placeholder="Search academic terms" value="'.h($_GET['q']??'').'"><button type="submit" aria-label="Search academic terms">'.icon('search').'</button></div>'.$addTerm.'</form>';
+    echo '<form class="directory-toolbar no-print" data-directory="academic-terms" method="get" role="search"><div class="directory-search"><input type="search" name="q" class="form-control" aria-label="Search academic terms" placeholder="Search academic terms" value="'.h($_GET['q']??'').'"><button type="submit" aria-label="Search academic terms">'.icon('search').'</button></div>'.$addTerm.'</form>';
     pageHead('Academic Terms','',ob_get_clean());
     tableView(['Term Name','Start Date','End Date','Status','Actions'],$body,'No academic terms match your search.','academic-term-table');
     echo $footer;
@@ -210,7 +210,7 @@ function departmentRequirementsView(array $u): void {
     $statuses=['Active','Upcoming','Completed','Archived'];
     $addUrl=url('manage',['new'=>1,'semester'=>$semester,'academic_year'=>$year,'subject_id'=>$subjectId]);
     pageHead('Requirements','','<a class="btn btn-primary" data-form-modal href="'.$addUrl.'">'.icon('plus-lg').' Add Requirement</a>');
-    echo '<form class="directory-toolbar requirements-toolbar" method="get" role="search"><input type="hidden" name="p" value="manage">';
+    echo '<form class="directory-toolbar requirements-toolbar" method="get" role="search">';
     echo '<div class="directory-search"><input type="search" name="q" class="form-control" aria-label="Search requirements" placeholder="Search requirements" value="'.h($_GET['q']??'').'"><button type="submit" aria-label="Search requirements">'.icon('search').'</button></div>';
     selectBox('semester','Semester',$semesters,$semester,'',true);
     selectBox('academic_year','Academic Year',$years,$year,'',true);
@@ -239,7 +239,7 @@ function subjectsView(array $u,int $id): void {
     if(!admin($u)){
         [$semesters,$semester,$years,$year]=directoryTermFilters();
         ob_start();
-        echo '<form class="directory-toolbar" data-directory="department-subjects" method="get" role="search"><input type="hidden" name="p" value="subjects">';
+        echo '<form class="directory-toolbar" data-directory="department-subjects" method="get" role="search">';
         echo '<div class="directory-search"><input type="search" name="q" class="form-control" aria-label="Search subjects" placeholder="Search subjects" value="'.h($_GET['q']??'').'"><button type="submit" aria-label="Search subjects">'.icon('search').'</button></div>';
         selectBox('semester','Semester',$semesters,$semester,'',true);
         selectBox('academic_year','Academic Year',$years,$year,'',true);
@@ -270,7 +270,7 @@ function subjectsView(array $u,int $id): void {
     $termOptions=[''=>'All terms'];foreach($terms as $term)$termOptions[$term['id']]=$term['academic_year'].' · '.$term['semester'];
     $departments=rows('SELECT id,name FROM departments WHERE active=1 ORDER BY name');$departmentOptions=[''=>'All departments'];foreach($departments as $department)$departmentOptions[$department['id']]=$department['name'];
     ob_start();
-    echo '<form class="directory-toolbar no-print" data-directory="subjects" method="get" role="search"><input type="hidden" name="p" value="subjects">';
+    echo '<form class="directory-toolbar no-print" data-directory="subjects" method="get" role="search">';
     echo '<div class="directory-search"><input type="search" name="q" class="form-control" aria-label="Search subjects" placeholder="Search subjects" value="'.h($search).'"><button type="submit" aria-label="Apply filters">'.icon('search').'</button></div>';
     selectBox('term_id','Academic term',$termOptions,$termId?:'','',true);
     selectBox('department_id','Department',$departmentOptions,$departmentId?:'','',true);

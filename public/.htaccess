@@ -1,3 +1,5 @@
 Require all granted
 Options -Indexes
 DirectoryIndex index.php
+RewriteEngine On
+RewriteRule ^(?:admin|department-head|faculty)/[a-z][a-z-]*/?$ index.php [L]

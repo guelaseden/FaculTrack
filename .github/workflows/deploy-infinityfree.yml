@@ -8,6 +8,7 @@ on:
       - 'views/**'
       - 'public/assets/**'
       - 'public/index.php'
+      - 'public/.htaccess'
       - '.github/workflows/deploy-infinityfree.yml'
   workflow_dispatch:
 
@@ -74,6 +75,13 @@ jobs:
               --quote "-RNFR $staged" --quote "-RNTO $name" "$dir/$staged"
             echo "Published $remote"
           }
+          # Install routing only inside the three role directories. The live
+          # htdocs/.htaccess continues to protect configuration and uploads.
+          for role in admin department-head faculty; do
+            mkdir -p "public/$role"
+            printf '%s\n' 'RewriteEngine On' 'RewriteRule ^[a-z][a-z-]*/?$ /index.php [L]' > "public/$role/.htaccess"
+            upload "public/$role/.htaccess"
+          done
           while IFS= read -r -d '' file; do
             upload "$file"
           done < <(git ls-files -z -- 'app/*.php' 'views/*.php' public/assets/)

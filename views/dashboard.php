@@ -9,7 +9,7 @@ function dashboardView(array $u): void {
     $sent=array_values(array_filter($items,fn($r)=>$r['submission_id']));
     usort($sent,fn($a,$b)=>strcmp($b['submitted_at'],$a['submitted_at']));
     ob_start();
-    echo '<form method="get" class="dashboard-term-filter" aria-labelledby="dashboard-term-label"><input type="hidden" name="p" value="dashboard"><span class="form-label" id="dashboard-term-label">Academic Term:</span>';
+    echo '<form method="get" class="dashboard-term-filter" aria-labelledby="dashboard-term-label"><span class="form-label" id="dashboard-term-label">Academic Term:</span>';
     selectBox('semester','Semester',$semesters,$semester,'',true);
     selectBox('academic_year','Academic Year',$years,$year,'',true);
     echo '</form>';

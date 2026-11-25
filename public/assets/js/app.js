@@ -342,7 +342,8 @@ function bindPasswordToggle(button) {
     const bootstrapIcon = button.querySelector('.bi');
     bootstrapIcon?.classList.toggle('bi-eye', revealed);
     bootstrapIcon?.classList.toggle('bi-eye-slash', !revealed);
-    button.querySelector('use')?.setAttribute('href', 'assets/images/account-icons.svg#' + (revealed ? 'eye' : 'eye-slash'));
+    const symbol = button.querySelector('use');
+    if (symbol) symbol.setAttribute('href', symbol.getAttribute('href').split('#')[0] + (revealed ? '#eye' : '#eye-slash'));
   }
   function updateEmptyState() {
     if (!passwordFieldWrap) return;

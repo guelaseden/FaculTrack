@@ -56,6 +56,11 @@ $faculty = actor('teacher');
 $head = actor('head');
 $admin = actor('admin');
 $peer = actor('peer');
+foreach ([[$admin,'admin'],[$head,'department-head'],[$faculty,'faculty']] as [$client,$prefix]) {
+    check($client->status===200 && str_ends_with($client->effectiveUrl,"/$prefix/dashboard"),"$prefix signs in at its dashboard URL");
+    $client->get('dashboard',['semester'=>'Midyear']);
+    check(str_ends_with($client->effectiveUrl,"/$prefix/dashboard?semester=Midyear"),"$prefix legacy dashboard link preserves filters");
+}
 $facultyDashboard=$faculty->get('dashboard');
 check(str_contains($facultyDashboard,'name="semester"') && str_contains($facultyDashboard,'name="academic_year"'),
     'faculty dashboard separates semester and academic year filters');
@@ -83,8 +88,8 @@ try {emailInput();} catch(DomainException) {$emailFormatRejected=true;}
 check($emailFormatRejected,'email addresses require an at sign and domain dot');
 if($hadEmailPost)$_POST['email']=$previousEmailPost;else unset($_POST['email']);
 preg_match('/<nav aria-label="Main navigation">(.*?)<\/nav>/s',$admin->body,$navMatch);
-preg_match_all('/href="\?p=([^"&]+)"/',$navMatch[1]??'',$navRoutes);
-check(($navRoutes[1]??[])===['dashboard','users','departments','academic-terms','manage','review','types','reports','settings'],
+preg_match_all('~href="/admin/([a-z-]+)"~',$navMatch[1]??'',$navRoutes);
+check(($navRoutes[1]??[])===['dashboard','users','departments','academic-terms','requirements','submissions','documents','reports','settings'],
     'administrator navigation includes requirements and review without a system settings page');
 check(str_contains($admin->body,'dashboard-term-filter') && str_contains($admin->body,'Submitted On Time')
     && !str_contains($admin->body,'>Apply</button>')

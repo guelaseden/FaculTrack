@@ -1,5 +1,5 @@
 <?php
-function url(string $page,array $params=[]): string {return '?'.h(http_build_query(['p'=>$page]+$params));}
+function url(string $page,array $params=[]): string {return h(pageUrl($page,$params));}
 function linkTo(string $page,string $label,array $params=[],string $class=''): string {return '<a class="'.h($class).'" href="'.url($page,$params).'">'.h($label).'</a>';}
 function icon(string $name): string {return '<i aria-hidden="true" class="bi bi-'.h($name).'"></i>';}
 function startForm(string $page,int $id=0,string $extra=''): void {echo '<form method="post" action="'.url($page,$id?['id'=>$id]:[]).'" novalidate autocomplete="off" '.$extra.'><input type="hidden" name="csrf" value="'.h($_SESSION['csrf']).'">';}
@@ -39,7 +39,7 @@ function filterOptions(array $items,string $key): array {
 function filterRows(array $items,array $keys,bool $render=true,bool $inlinePrompts=false): array {
     $term=trim((string)($_GET['q']??''));
     if($render){
-        echo '<form method="get" class="filters"><input type="hidden" name="p" value="'.h($_GET['p']??'dashboard').'">';
+        echo '<form method="get" class="filters">';
         foreach (['faculty_id','report'] as $key) if(isset($_GET[$key]))echo '<input type="hidden" name="'.$key.'" value="'.h($_GET[$key]).'">';
         echo '<label class="form-label">Search<input type="search" class="form-control" name="q" placeholder="Search records" value="'.h($term).'"></label>';
         foreach($keys as $key=>$label)selectBox($key,$label,[''=>$inlinePrompts?'All '.$label:'All']+filterOptions($items,$key),$_GET[$key]??'','',$inlinePrompts);

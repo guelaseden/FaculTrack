@@ -20,7 +20,7 @@ function facultyDashboardPanels(array $items,array $sent,array $term): void {
 }
 function facultyToolbar(string $page,string $search,array $term,?array $subjects=null,array $statuses=[]): void {
     [$semesters,$semester,$years,$year]=$term;
-    echo '<form class="directory-toolbar faculty-toolbar" method="get" role="search"><input type="hidden" name="p" value="'.h($page).'">';
+    echo '<form class="directory-toolbar faculty-toolbar" method="get" role="search">';
     echo '<div class="directory-search"><input type="search" class="form-control" name="q" aria-label="'.h($search).'" placeholder="'.h($search).'" value="'.h($_GET['q']??'').'"><button type="submit" aria-label="'.h($search).'">'.icon('search').'</button></div>';
     selectBox('semester','Semester',$semesters,$semester,'',true);
     selectBox('academic_year','Academic Year',$years,$year,'',true);

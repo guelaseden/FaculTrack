@@ -7,6 +7,7 @@ final class HttpClient
     private CurlHandle $curl;
     private string $token = '';
     public int $status = 0;
+    public string $effectiveUrl = '';
     public string $body = '';
 
     public function __construct(private string $base)
@@ -53,6 +54,7 @@ final class HttpClient
             throw new RuntimeException(curl_error($this->curl));
         }
         $this->status = curl_getinfo($this->curl, CURLINFO_RESPONSE_CODE);
+        $this->effectiveUrl = curl_getinfo($this->curl, CURLINFO_EFFECTIVE_URL);
         $this->body = $body;
         if (preg_match('~<input\b[^>]*\bname=["\']csrf["\'][^>]*\bvalue=["\']([^"\']+)~i', $body, $match)) {
             $this->token = html_entity_decode($match[1], ENT_QUOTES);

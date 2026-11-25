@@ -12,7 +12,18 @@ require ROOT.'/views/faculty.php';
 initSession();
 header('Cache-Control: private, no-store');header('X-Content-Type-Options: nosniff');header('X-Frame-Options: DENY');
 header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
-$page=(string)($_GET['p']??'dashboard');$id=(int)($_GET['id']??$_POST['id']??0);$post=$_SERVER['REQUEST_METHOD']==='POST';
+$requestPath=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
+$relativePath=substr($requestPath,strlen(appBasePath()));
+$prefix=null;
+if(preg_match('~^/(admin|department-head|faculty)/([a-z][a-z-]*)/?$~D',$relativePath,$match)){
+    $prefix=$match[1];
+    $page=array_flip(pageSlugs($prefix))[$match[2]]??$match[2];
+}elseif(in_array($relativePath,['/','/index.php',''],true)){
+    $page=(string)($_GET['p']??(empty($_SESSION['uid'])?'login':'dashboard'));
+}else{
+    http_response_code(404);exit('Page not found.');
+}
+$id=(int)($_GET['id']??$_POST['id']??0);$post=$_SERVER['REQUEST_METHOD']==='POST';
 $modalRequest=$post && ($_SERVER['HTTP_X_MODAL_REQUEST']??null)==='1' && ($_POST['modal_form']??null)==='1';
 function modalErrorField(string $page,string $message): ?string {
     $text=mb_strtolower($message,'UTF-8');
@@ -42,6 +53,7 @@ function modalErrorField(string $page,string $message): ?string {
 }
 ob_start();
 try {
+    if($page==='login' && !$post && $prefix===null && isset($_GET['p']))redirect('login');
     if ($page==='register') redirect(!empty($_SESSION['uid'])?'dashboard':'login');
     if ($post) {
         if ($page==='login') {
@@ -51,7 +63,7 @@ try {
         }
     }
     if ($page==='login'){
-        if ($post && !empty($_SESSION['uid'])) redirect('dashboard');
+        if (!empty($_SESSION['uid']) && ($existing=currentUser())){$_SESSION['role']=$existing['role'];redirect('dashboard');}
         if ($post){
             $fieldErrors=[];
             if (!is_string($_POST['employee_id']??null) || trim((string)$_POST['employee_id'])==='') $fieldErrors['employee_id']='Employee ID is required.';
@@ -83,7 +95,7 @@ try {
             valid($candidate['registration_status']!=='Declined','Your registration was declined. Contact your administrator.');
             valid((bool)$candidate['active'],'Your account is inactive. Please contact the administrator.|user-round-x');
             $_SESSION['login_attempts']=['count'=>0,'until'=>0];
-            session_regenerate_id(true);$_SESSION=['uid'=>$candidate['id'],'csrf'=>bin2hex(random_bytes(32)),'last'=>time()];
+            session_regenerate_id(true);$_SESSION=['uid'=>$candidate['id'],'role'=>$candidate['role'],'csrf'=>bin2hex(random_bytes(32)),'last'=>time()];
             if (($_POST['remember']??null)==='1') createRememberedLogin((int)$candidate['id']);
             else clearRememberedLoginCookie();
             redirect('dashboard');
@@ -92,6 +104,8 @@ try {
     }
     if(empty($_SESSION['uid']))redirect('login');
     $u=currentUser();if(!$u){$_SESSION=[];redirect('login');}
+    $_SESSION['role']=$u['role'];
+    if($prefix!==null)allow($prefix===rolePrefix($u['role']));
     if ($page==='logout'){
         allow($post);
         forgetRememberedLogin((int)$u['id']);
@@ -103,6 +117,7 @@ try {
     }
     $routes=routeMap($u);
     allow(isset($routes[$page]) || in_array($page,['detail','download','template-download'],true));
+    if(!$post && ($prefix===null || isset($_GET['p']) || $requestPath!==strtok(pageUrl($page),'?')))redirect($page,$_GET);
     if ($page==='download')downloadFile($u,$id);
     if ($page==='template-download')downloadTemplate($u,$id);
     if ($post) {
@@ -131,7 +146,7 @@ try {
                 $uploaded=record($u,(int)$_POST['assignment_id']);
                 $target=['p'=>'submissions','semester'=>$uploaded['semester'],'academic_year'=>$uploaded['academic_year']];
             }
-            echo json_encode(['ok'=>true,'redirect'=>'?'.http_build_query($target)],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+            echo json_encode(['ok'=>true,'redirect'=>pageUrl($target['p'],$target)],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
             exit;
         }
         if($page==='review')redirect('review',array_intersect_key($_GET,array_flip(['semester','academic_year','subject_id','faculty_id','review_status','pg'])));

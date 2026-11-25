@@ -57,7 +57,7 @@ function departmentReviewView(array $u): void {
         $filters[$key]=is_string($selected) && isset($options[$selected])?$selected:'';
     }
     pageHead('Submissions');
-    echo '<form class="directory-toolbar review-toolbar" method="get" aria-label="Filter submissions"><input type="hidden" name="p" value="review">';
+    echo '<form class="directory-toolbar review-toolbar" method="get" aria-label="Filter submissions">';
     selectBox('semester','Semester',$semesters,$semester,'',true);
     selectBox('academic_year','Academic Year',$years,$year,'',true);
     selectBox('subject_id','Subject',[''=>'All Subjects']+$subjects,$filters['subject_id'],'',true);
@@ -133,7 +133,7 @@ function legacyReportView(array $u,bool $csv=false): void {
     if(isset($_GET['faculty_id']))$items=array_filter($items,fn($r)=>$r['user_id']==(int)$_GET['faculty_id']);
     if($report==='Pending Requirements')$items=array_filter($items,fn($r)=>!$r['submission_id']);
     if($report==='Late Submissions')$items=array_filter($items,fn($r)=>$r['timeliness']==='Late');
-    if(!$csv){pageHead('Reports');echo '<form method="get" class="filters"><input type="hidden" name="p" value="reports">';selectBox('report','Report',array_combine($reports,$reports),$report,'',true);echo '<button class="btn btn-primary">Generate Report</button></form>';}
+    if(!$csv){pageHead('Reports');echo '<form method="get" class="filters">';selectBox('report','Report',array_combine($reports,$reports),$report,'',true);echo '<button class="btn btn-primary">Generate Report</button></form>';}
     $items=filterRows($items,['department'=>'Department','academic_year'=>'Academic year','semester'=>'Semester','requirement'=>'Requirement','submission_status'=>'Submission','review_status'=>'Review','timeliness'=>'Timeliness'],!$csv,true);
     $fields=['faculty'=>'Faculty','department'=>'Department','requirement'=>'Requirement','academic_year'=>'Academic year','semester'=>'Semester','deadline'=>'Deadline','submission_status'=>'Submission','timeliness'=>'Timeliness','review_status'=>'Review'];
     if($report==='Submission History')$fields+=['version_no'=>'Version','submitted_at'=>'Submitted on','remarks'=>'Reviewer remarks','record_state'=>'Record'];
@@ -212,7 +212,7 @@ function reportView(array $u,bool $csv=false,bool $excel=false): void {
     $exportActions='<div class="report-actions"><a class="btn btn-primary" href="'.url('reports',array_merge($_GET,['export'=>'xlsx'])).'">'.icon('file-earmark-spreadsheet').' Export Excel</a><button type="button" class="btn btn-primary" data-print>'.icon('file-earmark-pdf').' Export PDF</button></div>';
     pageHead('Reports','',$exportActions);
     ob_start();
-    echo '<form method="get" class="directory-toolbar report-toolbar no-print" data-directory="reports" role="search"><input type="hidden" name="p" value="reports">';
+    echo '<form method="get" class="directory-toolbar report-toolbar no-print" data-directory="reports" role="search">';
     selectBox('term_id','Academic Term',$termOptions,$termId);
     selectBox('department','Department',$departmentOptions,$department);
     selectBox('document_type','Document Type',$typeOptions,$documentType);
@@ -273,7 +273,7 @@ function departmentReportView(array $u,bool $excel=false): void {
     $actions='<div class="report-actions no-print"><button type="button" class="btn btn-primary" data-print>'.icon('file-earmark-pdf').' Export PDF</button>';
     $actions.='<a class="btn btn-primary" href="'.url('reports',$filters+['export'=>'xlsx']).'">'.icon('file-earmark-spreadsheet').' Export Excel</a></div>';
     pageHead('Reports','',$actions);
-    echo '<form method="get" class="directory-toolbar report-toolbar no-print"><input type="hidden" name="p" value="reports">';
+    echo '<form method="get" class="directory-toolbar report-toolbar no-print">';
     selectBox('semester','Semester',$semesters,$semester);
     selectBox('academic_year','Academic Year',$years,$year);
     selectBox('subject_id','Subject',[''=>'All Subjects']+$subjects,$filters['subject_id']);
@@ -320,7 +320,7 @@ function facultySubmissionSummary(array $records): array {
 
 function facultySubmissionPrintLayout(array $summaryRows,array $totals,array $details,string $generated): void {
     echo '<section class="report-print-layout" aria-label="Faculty submission report export">';
-    echo '<header class="report-print-header"><div class="report-print-brand"><img src="assets/images/facultrack-logo.png" alt=""><div><strong>FaculTrack</strong><span>FACULTY SUBMISSION REPORT</span></div></div><div class="report-print-generated">Generated on:<br>'.h($generated).'</div></header>';
+    echo '<header class="report-print-header"><div class="report-print-brand"><img src="'.h(appBasePath()).'/assets/images/facultrack-logo.png" alt=""><div><strong>FaculTrack</strong><span>FACULTY SUBMISSION REPORT</span></div></div><div class="report-print-generated">Generated on:<br>'.h($generated).'</div></header>';
     echo '<h1 class="report-print-title">Summary</h1><div class="report-print-metrics">';
     foreach([
         ['Total Required',$totals['required'],'total'],
