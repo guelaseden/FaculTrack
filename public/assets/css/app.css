@@ -209,7 +209,7 @@ td a {font-weight:600}
 .panel-body input,.panel-body select,.panel-body textarea {margin-top:5px}
 .panel-body .form-switch {margin:12px 0}
 .form-switch .form-check-input:checked {border-color:var(--color-forest);background-color:var(--color-forest)}
-input[readonly] {background-color:#f3f6f2!important;color:#58695f!important}
+input[readonly]:not(.portal-field input) {background-color:#f3f6f2!important;color:#58695f!important}
 label {font-size:.8rem;font-weight:600}
 input:not([type=checkbox],[type=radio],[type=hidden],[type=submit],[type=button]),select,textarea {width:100%;max-width:100%;padding:4px 10px;color:var(--color-text);background-color:#fffcf5;border:1px solid #bdcfc3;border-radius:var(--radius-sm);line-height:1.35}
 input:focus,select:focus,textarea:focus {border-color:var(--color-forest)}
