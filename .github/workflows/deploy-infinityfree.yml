@@ -1,0 +1,75 @@
+name: Deploy to InfinityFree
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'views/**'
+      - 'public/assets/**'
+      - 'public/index.php'
+      - '.github/workflows/deploy-infinityfree.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infinityfree-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Standard hosted runners are free for public repositories.
+    if: github.event.repository.visibility == 'public' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Check application syntax
+        run: |
+          find app views public -name '*.php' -print0 | xargs -0 -n1 php -l
+          node --check public/assets/js/app.js
+
+      - name: Upload application files with explicit FTPS
+        shell: bash
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_APP_DIR: ${{ vars.FTP_APP_DIR }}
+        run: |
+          set -euo pipefail
+          : "${FTP_HOST:?Set the FTP_HOST repository secret}"
+          : "${FTP_USERNAME:?Set the FTP_USERNAME repository secret}"
+          : "${FTP_PASSWORD:?Set the FTP_PASSWORD repository secret}"
+          : "${FTP_APP_DIR:?Set FTP_APP_DIR to the live folder containing app, views and public}"
+          [[ "$FTP_HOST" =~ ^[a-zA-Z0-9.-]+$ ]] || { echo 'Use the FTP hostname without a URL or port.'; exit 1; }
+          root="${FTP_APP_DIR%/}"
+          [[ "$root" =~ ^/[a-zA-Z0-9._/-]+$ && "/$root/" != *"/../"* ]] || { echo 'Check the FTP_APP_DIR path.'; exit 1; }
+          base="ftp://$FTP_HOST$root"
+          ftp=(curl --silent --show-error --fail --ssl-reqd --connect-timeout 15 --max-time 120 --user "$FTP_USERNAME:$FTP_PASSWORD")
+
+          # A different hosting layout needs a different deployment mapping.
+          for file in app/core.php views/management.php public/index.php; do
+            "${ftp[@]}" --head --output /dev/null "$base/$file" || { echo "Could not verify $file in FTP_APP_DIR. No files uploaded."; exit 1; }
+          done
+
+          # Publish each finished file by rename. Keep hosting rules, uploads,
+          # database contents and environment settings under the site's control.
+          upload() {
+            local file="$1" dir name staged
+            dir="${file%/*}"
+            name="${file##*/}"
+            staged=".ft-deploy-$name"
+            "${ftp[@]}" --ftp-create-dirs --upload-file "$file" \
+              --quote "-RNFR $staged" --quote "-RNTO $name" "$base/$dir/$staged"
+            echo "Published $file"
+          }
+          while IFS= read -r -d '' file; do
+            upload "$file"
+          done < <(git ls-files -z -- 'app/*.php' 'views/*.php' public/assets/)
+          upload public/index.php
