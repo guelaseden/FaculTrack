@@ -703,3 +703,20 @@ document.querySelectorAll('.faculty-drop').forEach(zone => {
     else showToast('Choose one document to upload.');
   });
 });
+
+const inbox = document.querySelector('.inbox');
+if (inbox) {
+  const all = inbox.querySelector('[data-inbox-all]');
+  const items = [...inbox.querySelectorAll('[name="events[]"]')];
+  function updateSelection() {
+    const count = items.filter(item => item.checked).length;
+    all.checked = count === items.length;
+    all.indeterminate = count > 0 && count < items.length;
+    inbox.querySelectorAll('button[name="action"]').forEach(button => button.disabled = count === 0);
+  }
+  inbox.addEventListener('change', event => {
+    if (event.target === all) items.forEach(item => item.checked = all.checked);
+    updateSelection();
+  });
+  updateSelection();
+}

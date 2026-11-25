@@ -839,3 +839,22 @@ html.portal-page, html.portal-page body {width:100%;min-height:100%;overflow-x:h
 .faculty-drop.is-dragging {outline:2px solid var(--color-forest)}
 .upload-actions {display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--color-border);padding-top:14px}
 @media(max-width:500px){.upload-summary{grid-template-columns:1fr}}
+
+.topbar-notification {position:relative}
+.notification-count {position:absolute;top:-3px;right:-5px;min-width:18px;padding:1px 4px;border:2px solid white;border-radius:12px;background:#a33839;color:white;text-align:center;font:700 10px/14px Arial,sans-serif}
+.inbox-tools,.inbox-tools label,.inbox-tools>div,.inbox-row {display:flex;align-items:center;gap:12px}
+.inbox-tools {justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.inbox-tools label {margin:0}
+.inbox-row {margin-block:6px}
+.inbox-item {flex:1;min-width:0;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:14px 18px;border:1px solid var(--color-border);border-radius:12px;background:#fffefa}
+.inbox-item.unread {background:#e9f2e9;border-color:#b5cdb9}
+.inbox-symbol {display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#eef1ed;color:#476551}
+.unread .inbox-symbol {background:var(--color-forest);color:white}
+.inbox-item a {color:var(--color-forest);font-weight:700}
+.inbox-item p {margin:3px 0 0;overflow-wrap:anywhere}
+.inbox-item small {color:var(--color-text-muted);align-self:start}
+.inbox-empty {padding:24px}
+@media(max-width:600px){
+  .inbox-item {grid-template-columns:auto minmax(0,1fr);padding:12px;gap:5px 10px}
+  .inbox-item small {grid-column:2}
+}

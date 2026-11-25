@@ -95,6 +95,7 @@ function navGroups(array $u): array {
 }
 function routeMap(array $u): array {
     $routes=array_merge(...array_values(navGroups($u)));
+    $routes['notifications']=['Notifications','bell'];
     if(admin($u))$routes+=['logs'=>['Activity Logs','clock-history'],'profile'=>['Settings','gear']];
     if($u['role']==='Department Head')$routes+=['profile'=>['Settings','gear'],'deadlines'=>['Deadlines','calendar3']];
     $routes+=['profile'=>['Settings','gear']];

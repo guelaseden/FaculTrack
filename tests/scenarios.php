@@ -62,6 +62,14 @@ foreach ([[$admin,'admin'],[$head,'department-head'],[$faculty,'faculty']] as [$
     check(str_ends_with($client->effectiveUrl,"/$prefix/dashboard?semester=Midyear"),"$prefix legacy dashboard link preserves filters");
 }
 $facultyDashboard=$faculty->get('dashboard');
+$inbox=$faculty->get('notifications');
+$assignedKey='assignment-'.$future['teacher'];
+check(str_contains($inbox,'Requirement overdue') && str_contains($inbox,$assignedKey)
+    && !str_contains($inbox,'Education annual record'),'faculty inbox shows personal assignments and overdue reminders');
+$faculty->post('notifications',['action'=>'read','events[0]'=>$assignedKey]);
+check((string)value('SELECT hidden FROM notification_receipts WHERE user_id=? AND event_key=?',[$teacher,$assignedKey])==='0','marking a notification read persists for its recipient');
+$faculty->post('notifications',['action'=>'delete','events[0]'=>$assignedKey]);
+check(!str_contains($faculty->body,'value="'.$assignedKey.'"') && (int)value('SELECT hidden FROM notification_receipts WHERE user_id=? AND event_key=?',[$teacher,$assignedKey])===1,'deleting a notification hides only its inbox entry');
 check(str_contains($facultyDashboard,'name="semester"') && str_contains($facultyDashboard,'name="academic_year"'),
     'faculty dashboard separates semester and academic year filters');
 $faculty->get('my-subjects');

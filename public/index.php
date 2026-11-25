@@ -4,6 +4,8 @@ require __DIR__.'/../app/core.php';
 require ROOT.'/app/records.php';
 require ROOT.'/app/manage.php';
 require ROOT.'/app/ui.php';
+require ROOT.'/app/notifications.php';
+require ROOT.'/views/notifications.php';
 require ROOT.'/views/layout.php';
 require ROOT.'/views/workspace.php';
 require ROOT.'/views/management.php';
@@ -121,6 +123,7 @@ try {
     if ($page==='download')downloadFile($u,$id);
     if ($page==='template-download')downloadTemplate($u,$id);
     if ($post) {
+        if($page==='notifications')ensureNotificationReceipts();
         db()->beginTransaction();
         // Serialize account permission edits with actions by the affected user.
         $u=one('SELECT * FROM users WHERE id=? AND active=1 FOR UPDATE',[$_SESSION['uid']]);
@@ -128,7 +131,7 @@ try {
         $allowedPages=routeMap($u);
         allow(isset($allowedPages[$page]) || $page==='detail');
         $message=match($page){
-            'users'=>saveUser($u,$id),'faculty'=>saveUser($u,$id,true),'departments','types'=>saveCatalog($u,$page,$id),'subjects'=>saveSubject($u,$id),'academic-terms'=>saveAcademicTerm($u,$id),'manage'=>saveRequirement($u,$id),
+            'notifications'=>updateNotifications($u),'users'=>saveUser($u,$id),'faculty'=>saveUser($u,$id,true),'departments','types'=>saveCatalog($u,$page,$id),'subjects'=>saveSubject($u,$id),'academic-terms'=>saveAcademicTerm($u,$id),'manage'=>saveRequirement($u,$id),
             'upload'=>submitFile($u),'detail','review'=>reviewFile($u,$id),'profile'=>saveProfile($u),
             default=>throw new AccessDenied('This action is unavailable.')
         };
@@ -165,7 +168,7 @@ try {
         'dashboard'=>dashboardView($u),'my-subjects'=>facultySubjectsView($u),'requirements','submissions','history','review','deadlines','personal-deadlines'=>listView($u,$page,$title),
         'detail'=>detailView($u,$id),'upload'=>uploadView($u),'reports'=>reportView($u),
         'users','faculty','departments','types','manage'=>managementView($u,$page,$title,$id),'subjects'=>subjectsView($u,$id),'academic-terms'=>academicTermsView($u,$id),'profile','settings'=>settingsView($u,$page),
-        'logs'=>logsView()
+        'notifications'=>notificationsView($u),'logs'=>logsView()
     };
     echo '</main></div></div></body></html>';
 } catch(Throwable $e) {

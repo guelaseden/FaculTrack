@@ -79,3 +79,8 @@ CREATE TABLE subjects (
 
 ALTER TABLE requirements ADD COLUMN subject_id INT NULL,
  ADD FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE SET NULL;
+
+CREATE TABLE notification_receipts (
+ user_id INT NOT NULL, event_key VARCHAR(80) NOT NULL, hidden BOOLEAN NOT NULL DEFAULT 0,
+ PRIMARY KEY(user_id,event_key), FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
