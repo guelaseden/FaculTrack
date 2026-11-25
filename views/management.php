@@ -295,7 +295,7 @@ function subjectEditView(array $u,int $id): void {
     panel('Subject details');startForm('subjects',$id);
     if(!$terms){echo '<p>An administrator must add an active academic term before a subject can be saved.</p></form>';endPanel();return;}
     echo '<div class="subject-edit-grid">';
-    field('code','Subject code',$record['code']??'','text',true,'Subject code');
+    field('code','Subject code',$record['code']??'');
     field('title','Subject name',$record['title']??'');
     echo '<label class="form-label">Units<input class="form-control" type="number" name="units" min="0" max="999.99" step="0.01" required value="'.h($record['units']??'').'"></label>';
     field('section','Section',$record['section']??'','text',true,'Section');
